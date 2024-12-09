@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Responsive Form with Progress Bar</title>
+  <style>
+    /* Basic Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden; /* Prevents background scrolling */
+    }
+
+    .form-container {
+      max-width: 600px;
+      width: 100%;
+      background: white;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease; /* Smooth reposition */
+    }
+
+    /* Centered fix on keyboard open */
+    .focused {
+      transform: translateY(-20vh); /* Adjust position when input is focused */
+    }
+
+    .progress-bar {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background-color: #ddd;
+      z-index: 0;
+    }
+
+    .progress-step {
+      z-index: 1;
+      position: relative;
+      width: 30px;
+      height: 30px;
+      background-color: #ddd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .progress-step.active {
+      background-color: #00e1ff;
+    }
+
+    .progress-step.completed {
+      background-color: #5750c7;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #00e1ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #5750c7;
+    }
+
+    .form-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .form-navigation button {
+      width: 48%;
+      margin: 0 5px;
+    }
+
+    .form-navigation .submit {
+      display: none;
+    }
+
+    .form-step {
+      display: none;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .toggle-switch input {
+      display: none;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .switch::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ccc;
+      border-radius: 20px;
+      transition: background-color 0.3s;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch input:checked + .switch::before {
+      background-color: #00e1ff;
+    }
+
+    .toggle-switch input:checked + .switch::after {
+      transform: translateX(20px);
+    }
+
+    /* Tooltip Styles */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 160px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -80px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 600px) {
+      .form-container {
+        max-width: 100%;
+        width: 95%;
+        padding: 10px;
+      }
+
+      input, textarea, select, button {
+        font-size: 14px;
+      }
+
+      button {
+        font-size: 16px;
+        padding: 12px;
+      }
+
+      .form-navigation button {
+        width: 100%;
+        margin: 10px 0;
+      }
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+
+    /* Booking Summary */
+    .booking-summary {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #333;
+      position: relative;
+    }
+
+    .booking-summary h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+      text-align: left;
+    }
+
+    .booking-summary .summary-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .booking-summary .summary-item i {
+      font-size: 18px;
+      margin-right: 8px;
+      color: #00e1ff;
+    }
+
+    .summary-text {
+      font-size: 14px;
+    }
+
+    .summary-total {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+      text-align: left;
+    }
+
+    .summary-actions {
+      position: absolute;
+      bottom: 15px;
+      right: 10px;
+    }
+
+    /* Enhancing the visibility of the download button */
+    .summary-actions button {
+      background-color: #5750c7;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .summary-actions button i {
+      font-size: 16px;
+    }
+
+    .summary-actions button:hover {
+      background-color: #00e1ff;
+    }
+  </style>
+  <!-- Include jsPDF library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <div class="form-container">
+    <div class="progress-bar">
+      <div class="progress-step active" id="step-1">1</div>
+      <div class="progress-step" id="step-2">2</div>
+      <div class="progress-step" id="step-3">3</div>
+    </div>
+
+    <form id="booking-form" action="#" method="POST" novalidate>
+      <!-- Step 1: Property Info -->
+      <div class="form-step form-step-1 active">
+        <h3>Property Info</h3>
+        <div class="form-group">
+          <label for="zip-code">Zip Code</label>
+          <input type="text" name="zip-code" id="zip-code" required pattern="\d{5}" title="Please enter a valid 5-digit zip code" />
+          <div class="error" id="zip-code-error"></div>
+        </div>
+        <!-- Remaining form content as originally provided -->
+      </div>
+
+      <!-- Step 2: Cleaning Type -->
+      <div class="form-step form-step-2">
+        <h3>Cleaning Type</h3>
+        <!-- Original step content as provided -->
+      </div>
+
+      <!-- Step 3: Booking Summary and Payment Information -->
+      <div class="form-step form-step-3">
+        <div class="booking-summary">
+          <h3>Booking Summary</h3>
+          <!-- Original summary content as provided -->
+        </div>
+      </div>
+
+      <div class="form-navigation">
+        <button type="button" class="form-nav-button prev">Back</button>
+        <button type="button" class="form-nav-button next">Get Quote</button>
+        <button type="submit" class="form-nav-button submit">Schedule</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const formContainer = document.querySelector(".form-container");
+
+      // Apply the 'focused' class when an input gains focus, to prevent shifting
+      document.querySelectorAll("input, select, textarea").forEach(element => {
+        element.addEventListener("focus", () => {
+          formContainer.classList.add("focused");
+        });
+        element.addEventListener("blur", () => {
+          formContainer.classList.remove("focused");
+        });
+      });
+
+      // Other JavaScript functionality as originally provided
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.1"
+  },
+  "name": "public_html",
+  "version": "1.0.0",
+  "description": "Essential Cleaners is dedicated to making your life easier by making it easier and quicker to schedule a high quality cleaner. We are available by phone, email, or even online chat. If you have any questions, we are here to answer them.",
+  "main": "server.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
