@@ -1,6 +1,8 @@
 import React from "react";
-import styles from "../../styles/bookingDetails.module.css";
+import styles from "../../styles/bookingdetails.module.css";
 
+
+const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL;
 const BookingDetails = ({ booking, error }) => {
   if (error) {
     return <div>Error: {error}</div>;
@@ -65,7 +67,7 @@ export async function getServerSideProps(context) {
 
   try {
     // const res = await fetch(`http://essentialscleaner.com/api/bookings/${id}`); 
-    const res = await fetch(`http://localhost:3000/api/bookings/${id}`); 
+    const res = await fetch(`${WEB_URL}/api/bookings/${id}`); 
     if (!res.ok) {
       throw new Error(`Failed to fetch booking: ${res.statusText}`);
     }

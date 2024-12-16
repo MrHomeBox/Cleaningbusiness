@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@next/env": "^15.1.0",
+    "@sendgrid/mail": "^8.1.4",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -8,7 +10,6 @@
     "next": "^15.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@sendgrid/mail": "^8.1.4",
     "twilio": "^5.3.7"
   },
   "name": "public_html",
@@ -19,8 +20,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "vercel-build": "echo hello"
+    "lint": "next lint"
   },
   "keywords": [],
   "author": "",

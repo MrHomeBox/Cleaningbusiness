@@ -161,6 +161,19 @@
     margin-top: 20px;
     transition: background-color 0.3s ease;
 }
+  
+  .confirmBtn {
+    /* display: block; */
+    background: green;
+    color: #fff;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
 
 .btn {
     /* display: block; */

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/dashboard.module.css";
+import Link from "next/link";
 
 const Cleaners = () => {
   const [adminCode, setAdminCode] = useState("");
@@ -19,7 +20,8 @@ const Cleaners = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
+      // const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
+      const res = await fetch("/api/validate-admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +43,8 @@ const Cleaners = () => {
 
   const fetchCleaners = async () => {
     try {
-      const res = await fetch("http://essentialscleaner.com/api/cleaners", {
+      // const res = await fetch("http://essentialscleaner.com/api/cleaners", {
+      const res = await fetch("/api/cleaners", {
         headers: { "Admin-Code": adminCode },
       });
       if (!res.ok) throw new Error("Failed to fetch cleaners");
@@ -57,7 +60,8 @@ const Cleaners = () => {
     if (!confirm("Are you sure you want to delete this cleaner?")) return;
 
     try {
-      const res = await fetch(`http://essentialscleaner.com/api/cleaners/${id}`, {
+      // const res = await fetch(`http://essentialscleaner.com/api/cleaners/${id}`, {
+      const res = await fetch(`/api/cleaners/${id}`, {
         method: "DELETE",
         headers: { "Admin-Code": adminCode },
       });
@@ -75,9 +79,12 @@ const Cleaners = () => {
 
     try {
       const method = isEditing ? "PUT" : "POST";
+      // const url = isEditing
+      //   ? `http://essentialscleaner.com/api/cleaners/${editId}`
+      //   : "http://essentialscleaner.com/api/cleaners";
       const url = isEditing
-        ? `http://essentialscleaner.com/api/cleaners/${editId}`
-        : "http://essentialscleaner.com/api/cleaners";
+        ? `/api/cleaners/${editId}`
+        : "/api/cleaners";
 
       const res = await fetch(url, {
         method,
@@ -162,9 +169,14 @@ const Cleaners = () => {
     <div className={styles.container}>
       <h1>Manage Cleaners</h1>
 
-      <button onClick={() => setIsModalOpen(true)} className={styles.addButton}>
+      <div className={styles.actions}>
+        <Link href="/admin/dashboard" display="inline">
+          <button className={styles.btn}>Dashboard</button>
+        </Link>
+      <button onClick={() => setIsModalOpen(true)} className={styles.confirmBtn}>
         Add Cleaner
       </button>
+      </div>
 
       {/* Modal for adding or editing a cleaner */}
       {isModalOpen && (
@@ -241,6 +253,7 @@ const Cleaners = () => {
               <td>{cleaner.availability}</td>
               <td>
                 <button
+                  className={styles.viewBtn}
                   onClick={() => {
                     setIsEditing(true);
                     setEditId(cleaner._id);
@@ -250,7 +263,7 @@ const Cleaners = () => {
                 >
                   Edit
                 </button>
-                <button onClick={() => handleDelete(cleaner._id)}>
+                <button className={styles.deleteBtn} onClick={() => handleDelete(cleaner._id)}>
                   Delete
                 </button>
               </td>
