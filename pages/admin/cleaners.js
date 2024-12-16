@@ -19,7 +19,8 @@ const Cleaners = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
+      // const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
+      const res = await fetch("/api/validate-admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +42,8 @@ const Cleaners = () => {
 
   const fetchCleaners = async () => {
     try {
-      const res = await fetch("http://essentialscleaner.com/api/cleaners", {
+      // const res = await fetch("http://essentialscleaner.com/api/cleaners", {
+      const res = await fetch("/api/cleaners", {
         headers: { "Admin-Code": adminCode },
       });
       if (!res.ok) throw new Error("Failed to fetch cleaners");
@@ -57,7 +59,8 @@ const Cleaners = () => {
     if (!confirm("Are you sure you want to delete this cleaner?")) return;
 
     try {
-      const res = await fetch(`http://essentialscleaner.com/api/cleaners/${id}`, {
+      // const res = await fetch(`http://essentialscleaner.com/api/cleaners/${id}`, {
+      const res = await fetch(`/api/cleaners/${id}`, {
         method: "DELETE",
         headers: { "Admin-Code": adminCode },
       });
@@ -75,9 +78,12 @@ const Cleaners = () => {
 
     try {
       const method = isEditing ? "PUT" : "POST";
+      // const url = isEditing
+      //   ? `http://essentialscleaner.com/api/cleaners/${editId}`
+      //   : "http://essentialscleaner.com/api/cleaners";
       const url = isEditing
-        ? `http://essentialscleaner.com/api/cleaners/${editId}`
-        : "http://essentialscleaner.com/api/cleaners";
+        ? `/api/cleaners/${editId}`
+        : "/api/cleaners";
 
       const res = await fetch(url, {
         method,

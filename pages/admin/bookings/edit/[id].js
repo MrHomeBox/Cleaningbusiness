@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import styles from "../../../../styles/bookingDetails.module.css";
+import styles from "../../../../styles/bookingdetails.module.css";
 import { useRouter } from "next/router";
 
+const WEB_URL = process.env.VERCEL_BRANCH_URL;
 const EditBooking = ({ booking, error }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ const EditBooking = ({ booking, error }) => {
     },
     totalPrice: booking?.totalPrice || 0,
     paymentType: booking?.paymentType || "",
+    cleaner: booking?.cleaner || "",
   });
 
   const [showModal, setShowModal] = useState(false); 
@@ -38,7 +40,7 @@ const EditBooking = ({ booking, error }) => {
   const [assigning, setAssigning] = useState(false); 
   const [message, setMessage] = useState(""); 
   const [cleaners, setCleaners] = useState([]);
-  const [selectedCleaner, setSelectedCleaner] = useState(booking.cleaner || "");
+  const [selectedCleaner, setSelectedCleaner] = useState(booking?.cleaner || "");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,7 +76,8 @@ const EditBooking = ({ booking, error }) => {
 
   const fetchCleaners = async () => {
     try {
-      const res = await fetch("http://essentialscleaner.com/api/cleaners", {
+      // const res = await fetch("http://essentialscleaner.com/api/cleaners", {
+      const res = await fetch(`${WEB_URL}/api/cleaners`, {
         headers: { "Admin-Code": adminCode },
       });
       if (!res.ok) throw new Error("Failed to fetch cleaners");
@@ -89,7 +92,8 @@ const EditBooking = ({ booking, error }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://essentialscleaner.com/api/bookings/${booking._id}`, {
+      // const res = await fetch(`http://essentialscleaner.com/api/bookings/${booking._id}`, {
+      const res = await fetch(`${WEB_URL}/api/bookings/${booking._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +102,7 @@ const EditBooking = ({ booking, error }) => {
       });
 
       if (res.ok) {
-        router.push(`http://localhost:3000/admin/bookings/${booking._id}`);
+        router.push(`/admin/bookings/${booking._id}`);
       } else {
         alert("Failed to update booking.");
       }
@@ -121,7 +125,8 @@ const EditBooking = ({ booking, error }) => {
     try {
       setAssigning(true);
   
-      const res = await fetch(`http://essentialscleaner.com/api/bookings/${booking._id}/assign-cleaner`, {
+      // const res = await fetch(`http://essentialscleaner.com/api/bookings/${booking._id}/assign-cleaner`, {
+      const res = await fetch(`${WEB_URL}/api/bookings/${booking._id}/assign-cleaner`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -420,7 +425,8 @@ export async function getServerSideProps(context) {
   const { id } = context.params;
 
   try {
-    const res = await fetch(`http://essentialscleaner.com/api/bookings/${id}`);
+    // const res = await fetch(`http://essentialscleaner.com/api/bookings/${id}`);
+    const res = await fetch(`${WEB_URL}/api/bookings/${id}`);
     if (!res.ok) {
       throw new Error(`Failed to fetch booking: ${res.statusText}`);
     }

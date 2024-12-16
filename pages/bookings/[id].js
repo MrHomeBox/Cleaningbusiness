@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../../styles/bookingDetails.module.css";
+import styles from "../../styles/bookingdetails.module.css";
 
 const BookingDetails = ({ booking, error }) => {
   if (error) {
@@ -65,7 +65,7 @@ export async function getServerSideProps(context) {
 
   try {
     // const res = await fetch(`http://essentialscleaner.com/api/bookings/${id}`); 
-    const res = await fetch(`http://localhost:3000/api/bookings/${id}`); 
+    const res = await fetch(`/api/bookings/${id}`); 
     if (!res.ok) {
       throw new Error(`Failed to fetch booking: ${res.statusText}`);
     }

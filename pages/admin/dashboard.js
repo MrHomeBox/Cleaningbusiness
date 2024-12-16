@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "../../styles/dashboard.module.css";
 import Link from "next/link";
 
+const WEB_URL = process.env.VERCEL_BRANCH_URL;
 const Dashboard = () => {
   const [adminCode, setAdminCode] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -13,7 +14,8 @@ const Dashboard = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
+      // const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
+      const res = await fetch(`/api/validate-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +40,8 @@ const Dashboard = () => {
   const fetchBookings = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("http://essentialscleaner.com/api/admin/bookings", {
+      // const res = await fetch("http://essentialscleaner.com/api/admin/bookings", {
+      const res = await fetch(`/api/admin/bookings`, {
         headers: {
           "Content-Type": "application/json",
           "Admin-Code": adminCode,
@@ -60,7 +63,7 @@ const Dashboard = () => {
     if (!confirm("Are you sure you want to delete this booking?")) return;
 
     try {
-      const res = await fetch(`http://essentialscleaner.com/api/admin/bookings/${id}`, {
+      const res = await fetch(`${WEB_URL}/api/admin/bookings/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import styles from "../../../styles/bookingDetails.module.css";
+import styles from "../../../styles/bookingdetails.module.css";
 
+const WEB_URL = process.env.VERCEL_BRANCH_URL;
 const BookingDetails = ({ booking, error }) => {
+
   const [showModal, setShowModal] = useState(false); 
   const [cleanerName, setCleanerName] = useState(""); 
   const [cleanerNumber, setCleanerNumber] = useState("");
@@ -22,7 +24,8 @@ const BookingDetails = ({ booking, error }) => {
 
     try {
       setAssigning(true);
-      const res = await fetch(`http://essentialscleaner.com/api/bookings/${booking._id}/assign-cleaner`, {
+      // const res = await fetch(`http://essentialscleaner.com/api/bookings/${booking._id}/assign-cleaner`, {
+      const res = await fetch(`/api/bookings/${booking._id}/assign-cleaner`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -164,7 +167,8 @@ const BookingDetails = ({ booking, error }) => {
         </div>
       )}
 
-      <a href={`http://localhost:3000/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a>
+      {/* <a href={`http://localhost:3000/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a> */}
+      <a href={`${WEB_URL}/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a>
       <a href="/" className={styles.btn}>Back to Home</a>
     </div>
   );
@@ -175,7 +179,7 @@ export async function getServerSideProps(context) {
 
   try {
     // const res = await fetch(`http://localhost:5000/api/bookings/${id}`); 
-    const res = await fetch(`http://essentialscleaner.com/api/bookings/${id}`); 
+    const res = await fetch(`${WEB_URL}/api/bookings/${id}`); 
     if (!res.ok) {
       throw new Error(`Failed to fetch booking: ${res.statusText}`);
     }
