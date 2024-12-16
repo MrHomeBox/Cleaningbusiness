@@ -64,7 +64,8 @@ export async function getServerSideProps(context) {
   const { id } = context.params;
 
   try {
-    const res = await fetch(`http://localhost:5000/api/bookings/${id}`); 
+    // const res = await fetch(`http://essentialscleaner.com/api/bookings/${id}`); 
+    const res = await fetch(`http://localhost:3000/api/bookings/${id}`); 
     if (!res.ok) {
       throw new Error(`Failed to fetch booking: ${res.statusText}`);
     }

@@ -19,7 +19,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "vercel-build": "echo hello"
   },
   "keywords": [],
   "author": "",
@@ -31,5 +32,6 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "5.7.2"
-  }
+  },
+  "type": "module"
 }

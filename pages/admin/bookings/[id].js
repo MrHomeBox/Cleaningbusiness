@@ -22,7 +22,7 @@ const BookingDetails = ({ booking, error }) => {
 
     try {
       setAssigning(true);
-      const res = await fetch(`http://localhost:5000/api/bookings/${booking._id}/assign-cleaner`, {
+      const res = await fetch(`http://essentialscleaner.com/api/bookings/${booking._id}/assign-cleaner`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -174,7 +174,8 @@ export async function getServerSideProps(context) {
   const { id } = context.params;
 
   try {
-    const res = await fetch(`http://localhost:5000/api/bookings/${id}`); 
+    // const res = await fetch(`http://localhost:5000/api/bookings/${id}`); 
+    const res = await fetch(`http://essentialscleaner.com/api/bookings/${id}`); 
     if (!res.ok) {
       throw new Error(`Failed to fetch booking: ${res.statusText}`);
     }

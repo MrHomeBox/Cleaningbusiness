@@ -1,9 +1,11 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-require("dotenv").config();
-const { sendEmail, sendSMS } = require('./notificationService');
+import express from "express";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import { sendEmail, sendSMS } from "./notificationService.js";
+
+dotenv.config(); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +22,10 @@ mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
+
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!' });
+});
 
 // Booking Schema and Model
 const bookingSchema = new mongoose.Schema({
@@ -66,9 +72,9 @@ app.post("/api/bookings", async (req, res) => {
     const { email, phone } = req.body.contactInfo;
     const { appointmentDate, appointmentTime, address } = req.body;
 
-    const bookingLink = `http://api.essentialscleaner.com/bookings/${savedBooking._id}`;
-    const adminBookingLink = `http://api.essentialscleaner.com/admin/bookings/${savedBooking._id}`;
-    const adminDashboard = `http://api.essentialscleaner.com/admin/booking`;
+    const bookingLink = `http://essentialscleaner.com/api/bookings/${savedBooking._id}`;
+    const adminBookingLink = `http://essentialscleaner.com/api/admin/bookings/${savedBooking._id}`;
+    const adminDashboard = `http://essentialscleaner.com/api/admin/booking`;
     const emailContent = `
       <h1>Booking Confirmation</h1>
       <p>Hi ${email},</p>
@@ -131,7 +137,7 @@ app.put("/api/bookings/:id", async (req, res) => {
     const { email, phone } = updatedData.contactInfo;
     const { appointmentDate, appointmentTime, address } = updatedData;
 
-    const bookingLink = `http://api.essentialscleaner.com/bookings/${updatedBooking._id}`;
+    const bookingLink = `http://essentialscleaner.com/api/bookings/${updatedBooking._id}`;
     const emailContent = `
       <h1>Booking Update</h1>
       <p>Hi ${email},</p>
@@ -325,3 +331,6 @@ app.delete("/api/cleaners/:id", async (req, res) => {
 
 // Start server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+
+export default app;

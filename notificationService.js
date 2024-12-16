@@ -1,6 +1,8 @@
-require("dotenv").config();
-const sgMail = require('@sendgrid/mail');
-const twilio = require('twilio');
+import dotenv from "dotenv";
+import sgMail from "@sendgrid/mail";
+import twilio from "twilio";
+
+dotenv.config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -40,4 +42,4 @@ const sendSMS = async (to, body) => {
   }
 };
 
-module.exports = { sendEmail, sendSMS };
+export { sendEmail, sendSMS };
