@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../../../styles/bookingdetails.module.css";
+import styles from "../../../../styles/bookingdetails.module.css";
 import { useRouter } from "next/router";
 
 const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL;
