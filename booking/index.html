@@ -333,6 +333,7 @@
             
                 <form id="booking-form" action="/Users/michealchingono/Downloads/public_html/booking-backend/api/bookingData" method="POST" novalidate>
                   <!-- Step 1: Property Info -->
+                  <input type="hidden" id="bookingStatus" name="bookingStatus" value="Pending">
                   <div class="form-step form-step-1 active">
                     <h3>Property Info</h3>
                     <div class="form-group">
@@ -1071,6 +1072,7 @@
             phone: document.getElementById("phone").value,
             email: document.getElementById("email").value,
         },
+        bookingStatus: document.getElementById("bookingStatus").value,
         paymentType: document.getElementById("payment-type").value,
         totalPrice: parseFloat(document.getElementById("summary-price").textContent.replace(/[^\d.]/g, '')),
     };

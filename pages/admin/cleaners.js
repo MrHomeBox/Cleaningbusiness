@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/dashboard.module.css";
+import Link from "next/link";
 
 const Cleaners = () => {
   const [adminCode, setAdminCode] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [cleaners, setCleaners] = useState([]);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState({ name: "", contactInfo: {email: "", phone: "" }, availability: ""});
+  const [formData, setFormData] = useState({ name: "", nationalId:"", address: "",contactInfo: {email: "", phone: "" }, availability: ""});
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,6 +15,47 @@ const Cleaners = () => {
   useEffect(() => {
     if (isAuthorized) fetchCleaners();
   }, [isAuthorized]);
+
+  const handleCheckboxChange = (e, formData, setFormData) => {
+    const value = e.target.value;
+    const isChecked = e.target.checked;
+    let updatedAvailability = [...formData.availability];
+  
+    // Handle the "Full Time" logic
+    if (value === "Full Time") {
+      if (isChecked) {
+        updatedAvailability = ["Full Time", "Morning", "Afternoon", "Evening"];
+      } else {
+        updatedAvailability = [];
+      }
+    } else {
+      if (isChecked) {
+        updatedAvailability = updatedAvailability == [] ? [value] :updatedAvailability.push(value);
+      } else {
+        updatedAvailability = updatedAvailability.filter(item => item !== value);
+      }
+      
+      // If all individual times are selected, mark "Full Time" as selected
+      const allSelected = ["Morning", "Afternoon", "Evening"].every(opt => updatedAvailability.includes(opt));
+  
+      if (allSelected) {
+        updatedAvailability = ["Full Time", ...updatedAvailability];
+      } else {
+        updatedAvailability = updatedAvailability.filter(item => item !== "Full Time");
+      }
+    }
+
+    const customOrder = ["Full Time", "Morning", "Afternoon", "Evening"];
+
+    const sortedAvailability = updatedAvailability.sort((a, b) => customOrder.indexOf(a) - customOrder.indexOf(b));
+
+  
+    // Update the formData with the new availability selection
+    setFormData({
+      ...formData,
+      availability: sortedAvailability,
+    });
+  };
 
   const handleAdminCodeSubmit = async (e) => {
     e.preventDefault();
@@ -103,7 +145,7 @@ const Cleaners = () => {
         setCleaners([...cleaners, data]);
       }
 
-      setFormData({ name: "", contactInfo:{ email:"" ,phone: ""} });
+      setFormData({ name: "", nationalId:"", address: "",contactInfo: {email: "", phone: "" }, availability: ""});
       setIsEditing(false);
       setEditId(null);
       setIsModalOpen(false);
@@ -168,9 +210,14 @@ const Cleaners = () => {
     <div className={styles.container}>
       <h1>Manage Cleaners</h1>
 
-      <button onClick={() => setIsModalOpen(true)} className={styles.addButton}>
+      <div className={styles.actions}>
+        <Link href="/admin/dashboard" display="inline">
+          <button className={styles.btn}>Dashboard</button>
+        </Link>
+      <button onClick={() => setIsModalOpen(true)} className={styles.confirmBtn}>
         Add Cleaner
       </button>
+      </div>
 
       {/* Modal for adding or editing a cleaner */}
       {isModalOpen && (
@@ -184,6 +231,26 @@ const Cleaners = () => {
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
+                }
+                required
+                className={styles.input}
+              />
+              <input
+                type="text"
+                placeholder="NationalId"
+                value={formData.nationalId}
+                onChange={(e) =>
+                  setFormData({ ...formData, nationalId: e.target.value })
+                }
+                required
+                className={styles.input}
+              />
+              <input
+                type="text"
+                placeholder="Address"
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
                 }
                 required
                 className={styles.input}
@@ -206,17 +273,123 @@ const Cleaners = () => {
                 required
                 className={styles.input}
                 />
-              <select
+              {/* <select
                 name="availability"
                 value={formData.availability}
-                onChange={(e) =>
-                    setFormData({ ...formData, availability: e.target.value })
-                  }
+                onChange={(e) => {
+                  const selectedOptions = Array.from(e.target.selectedOptions).map(
+                    (option) => option.value
+                  );
+                  setFormData({ ...formData, availability: selectedOptions });
+                }}
+                multiple
                 className={styles.input}
-                >
-                <option value="Available">Available</option>
-                <option value="Unavailable">Unavailable</option>
-            </select>
+              >
+                <option value="Full Time">Full Time</option>
+                <option value="Morning">Morning</option>
+                <option value="Afternoon">Afternoon</option>
+                <option value="Evening">Evening</option>
+              </select> */}
+              <div className={styles.formGroup}>
+                <label>
+                  <input
+                    type="checkbox"
+                    value="Full Time"
+                    checked={formData.availability.includes("Full Time")}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        // Selecting "Full Time" selects all options
+                        setFormData({
+                          ...formData,
+                          availability: ["Full Time", "Morning", "Afternoon", "Evening"],
+                        });
+                      } else {
+                        // Deselecting "Full Time" clears all options
+                        setFormData({ ...formData, availability: [] });
+                      }
+                    }}
+                  />
+                  Full Time
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    value="Morning"
+                    checked={formData.availability.includes("Morning")}
+                    onChange={(e) => {
+                      const updatedAvailability = e.target.checked
+                        ? [...formData.availability, "Morning"]
+                        : formData.availability.filter((item) => item !== "Morning");
+
+                      // Check if all individual times are selected
+                      const allSelected = ["Morning", "Afternoon", "Evening"].every((opt) =>
+                        updatedAvailability.includes(opt)
+                      );
+
+                      setFormData({
+                        ...formData,
+                        availability: allSelected
+                          ? ["Full Time", ...updatedAvailability]
+                          : updatedAvailability.filter((item) => item !== "Full Time"),
+                      });
+                    }}
+                  />
+                  Morning
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    value="Afternoon"
+                    checked={formData.availability.includes("Afternoon")}
+                    onChange={(e) => {
+                      const updatedAvailability = e.target.checked
+                        ? [...formData.availability, "Afternoon"]
+                        : formData.availability.filter((item) => item !== "Afternoon");
+
+                      // Check if all individual times are selected
+                      const allSelected = ["Morning", "Afternoon", "Evening"].every((opt) =>
+                        updatedAvailability.includes(opt)
+                      );
+
+                      setFormData({
+                        ...formData,
+                        availability: allSelected
+                          ? ["Full Time", ...updatedAvailability]
+                          : updatedAvailability.filter((item) => item !== "Full Time"),
+                      });
+                    }}
+                  />
+                  Afternoon
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    value="Evening"
+                    checked={formData.availability.includes("Evening")}
+                    onChange={(e) => {
+                      const updatedAvailability = e.target.checked
+                        ? [...formData.availability, "Evening"]
+                        : formData.availability.filter((item) => item !== "Evening");
+
+                      // Check if all individual times are selected
+                      const allSelected = ["Morning", "Afternoon", "Evening"].every((opt) =>
+                        updatedAvailability.includes(opt)
+                      );
+
+                      setFormData({
+                        ...formData,
+                        availability: allSelected
+                          ? ["Full Time", ...updatedAvailability]
+                          : updatedAvailability.filter((item) => item !== "Full Time"),
+                      });
+                    }}
+                  />
+                  Evening
+                </label>
+              </div>
               <button type="submit" className={styles.btn}>
                 {isEditing ? "Update Cleaner" : "Add Cleaner"}
               </button>
@@ -232,6 +405,8 @@ const Cleaners = () => {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Address</th>
+            <th>Identification</th>
             <th>Email</th>
             <th>Phone</th>
             <th>Availability</th>
@@ -242,11 +417,14 @@ const Cleaners = () => {
           {cleaners.map((cleaner) => (
             <tr key={cleaner._id}>
               <td>{cleaner.name}</td>
+              <td>{cleaner.address}</td>
+              <td>{cleaner.nationalId}</td>
               <td>{cleaner.contactInfo.email}</td>
               <td>{cleaner.contactInfo.phone}</td>
-              <td>{cleaner.availability}</td>
+              <td>{cleaner.availability.join(", ")}</td>
               <td>
                 <button
+                  className={styles.viewBtn}
                   onClick={() => {
                     setIsEditing(true);
                     setEditId(cleaner._id);
@@ -256,7 +434,7 @@ const Cleaners = () => {
                 >
                   Edit
                 </button>
-                <button onClick={() => handleDelete(cleaner._id)}>
+                <button className={styles.deleteBtn} onClick={() => handleDelete(cleaner._id)}>
                   Delete
                 </button>
               </td>

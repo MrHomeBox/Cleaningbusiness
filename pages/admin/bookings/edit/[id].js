@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../../../../styles/bookingdetails.module.css";
 import { useRouter } from "next/router";
 
-const WEB_URL = process.env.VERCEL_BRANCH_URL;
+const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL;
 const EditBooking = ({ booking, error }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -17,7 +17,7 @@ const EditBooking = ({ booking, error }) => {
     homeCondition: booking?.homeCondition || "",
     pets: booking?.pets || "no",
     frequency: booking?.frequency || "",
-    addOnServices: booking?.addOnServices?.join(", ") || "",
+    addOnServices: booking?.addOnServices || "",
     contactInfo: {
       email: booking?.contactInfo?.email || "",
       phone: booking?.contactInfo?.phone || "",
@@ -31,6 +31,7 @@ const EditBooking = ({ booking, error }) => {
     totalPrice: booking?.totalPrice || 0,
     paymentType: booking?.paymentType || "",
     cleaner: booking?.cleaner || "",
+    bookingStatus: booking?.bookingStatus || "",
   });
 
   const [showModal, setShowModal] = useState(false); 
@@ -269,6 +270,38 @@ const EditBooking = ({ booking, error }) => {
           </select>
         </div>
         <div className={styles.formGroup}>
+          <h2 className={styles.sectionTitle}>Add-On Services</h2>
+          <div className={styles.addOnServices}>
+            {[
+              "Car Wash",
+              "Laundry",
+              "Inside Fridge",
+              "Inside Microwave",
+              "Inside Windows",
+            ].map((service) => (
+              <label key={service} className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  name="addOnServices"
+                  value={service}
+                  checked={formData.addOnServices.includes(service)}
+                  onChange={(e) => {
+                    const updatedServices = e.target.checked
+                      ? [...formData.addOnServices, service]
+                      : formData.addOnServices.filter((item) => item !== service);
+        
+                    setFormData({
+                      ...formData,
+                      addOnServices: updatedServices,
+                    });
+                  }}
+                />
+                {service}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className={styles.formGroup}>
           <label>Frequency</label>
           <select
             name="frequency"
@@ -282,6 +315,7 @@ const EditBooking = ({ booking, error }) => {
             <option value="Monthly">Monthly</option>
           </select>
         </div>
+        
         <h2 className={styles.sectionTitle}>Contact Information</h2>
         <div className={styles.formGroup}>
           <label>Email</label>
@@ -364,6 +398,22 @@ const EditBooking = ({ booking, error }) => {
           </>
         )}
         
+        <div className={styles.formGroup}>
+          <h2 className={styles.sectionTitle}>Booking Status</h2>
+          <select
+            name="bookingStatus"
+            value={formData.bookingStatus}
+            onChange={handleChange}
+            className={styles.input}
+          >
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+
       <button className={styles.fullbtn} type="button" onClick={() => setShowModal(true)}>
           Assign Cleaner
       </button>

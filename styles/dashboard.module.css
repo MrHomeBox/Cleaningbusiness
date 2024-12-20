@@ -137,7 +137,7 @@
     background: white;
     padding: 20px;
     border-radius: 8px;
-    width: 300px;
+    width: 400px;
     text-align: center;
   }
 
@@ -152,6 +152,19 @@
   .cancelBtn {
     /* display: block; */
     background: #e74c3c;
+    color: #fff;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+  
+  .confirmBtn {
+    /* display: block; */
+    background: green;
     color: #fff;
     padding: 10px 15px;
     text-align: center;

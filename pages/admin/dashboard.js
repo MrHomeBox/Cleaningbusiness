@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styles from "../../styles/dashboard.module.css";
 import Link from "next/link";
 
-const WEB_URL = process.env.VERCEL_BRANCH_URL;
+const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL;
 const Dashboard = () => {
   const [adminCode, setAdminCode] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -14,8 +14,7 @@ const Dashboard = () => {
     e.preventDefault();
 
     try {
-      // const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
-      const res = await fetch(`/api/validate-admin`, {
+      const res = await fetch(`${WEB_URL}/api/validate-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,6 +107,11 @@ const Dashboard = () => {
   return (
     (<div className={styles.container}>
       <h1 className={styles.title}>Bookings Dashboard</h1>
+      <div className={styles.actions}>
+        <Link href="/admin/cleaners">
+          <button className={styles.btn}>Manage Cleaners</button>
+        </Link>
+      </div>
       {bookings.length === 0 ? (
         <p>No bookings available</p>
       ) : (
@@ -119,6 +123,7 @@ const Dashboard = () => {
               <th>Customer Phone</th>
               <th>Address</th>
               <th>Cleaner Assigned</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -130,11 +135,12 @@ const Dashboard = () => {
                 <td>{booking.contactInfo.phone ?? ""}</td>
                 <td>{booking.address.street ?? ""}</td>
                 <td>{booking.assignedCleaner ?? ""}</td>
+                <td>{booking.bookingStatus ?? ""}</td>
                 <td className={styles.actions}>
-                  <Link href={`/admin/bookings/${booking._id}`} className={styles.viewBtn}>
+                  <Link href={`${WEB_URL}/admin/bookings/${booking._id}`} className={styles.viewBtn}>
                     View
                   </Link>
-                  <Link href={`/admin/bookings/edit/${booking._id}`} className={styles.editBtn}>
+                  <Link href={`${WEB_URL}/admin/bookings/edit/${booking._id}`} className={styles.editBtn}>
                     Edit
                   </Link>
                   <button

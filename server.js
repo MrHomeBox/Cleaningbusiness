@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 5000;
 
 const ADMIN_CODE = process.env.ADMIN_CODE;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const APP_URL = process.env.NEXT_PUBLIC_WEB_URL;
 
 // Middleware
 app.use(cors());
@@ -55,9 +56,10 @@ const bookingSchema = new mongoose.Schema({
   totalPrice: Number,
   assignedCleaner: String,
   assignedCleanerNumber: String,
+  bookingStatus: String,
   cleaner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Cleaner', 
+    ref: 'Cleaner',
   },
 });
 
@@ -71,10 +73,11 @@ app.post("/api/bookings", async (req, res) => {
 
     const { email, phone } = req.body.contactInfo;
     const { appointmentDate, appointmentTime, address } = req.body;
+    console.log(req.body.bookingStatus);
 
-    const bookingLink = `http://essentialscleaner.com/api/bookings/${savedBooking._id}`;
-    const adminBookingLink = `http://essentialscleaner.com/api/admin/bookings/${savedBooking._id}`;
-    const adminDashboard = `http://essentialscleaner.com/api/admin/booking`;
+    const bookingLink = `${APP_URL}/api/bookings/${savedBooking._id}`;
+    const adminBookingLink = `${APP_URL}/api/admin/bookings/${savedBooking._id}`;
+    const adminDashboard = `${APP_URL}/api/admin/dashboard`;
     const emailContent = `
       <h1>Booking Confirmation</h1>
       <p>Hi ${email},</p>
@@ -124,6 +127,11 @@ app.put("/api/bookings/:id", async (req, res) => {
     const bookingId = req.params.id; 
     const updatedData = req.body; 
 
+    if (updatedData.cleaner == "") {
+      // Cleaner is Empty Setting Null
+      updatedData.cleaner = null;
+    }
+
     const updatedBooking = await Booking.findByIdAndUpdate(
       bookingId,
       updatedData,
@@ -137,7 +145,7 @@ app.put("/api/bookings/:id", async (req, res) => {
     const { email, phone } = updatedData.contactInfo;
     const { appointmentDate, appointmentTime, address } = updatedData;
 
-    const bookingLink = `http://essentialscleaner.com/api/bookings/${updatedBooking._id}`;
+    const bookingLink = `${APP_URL}/api/bookings/${updatedBooking._id}`;
     const emailContent = `
       <h1>Booking Update</h1>
       <p>Hi ${email},</p>
@@ -197,12 +205,14 @@ app.post('/api/bookings/:id/assign-cleaner', async (req, res) => {
      return res.status(404).json({ message: "Cleaner not found" });
    }
 
-   console.log(cleaner);
    const assignedCleaner = cleaner.name;
     const assignedCleanerNumber = cleaner.contactInfo.phone;
+    const assignedCleanerEmail = cleaner.contactInfo.email;
 
    cleaner.currentBookings.push(id);
    await cleaner.save();
+
+   
 
   try {
     const booking = await Booking.findByIdAndUpdate(
@@ -214,6 +224,18 @@ app.post('/api/bookings/:id/assign-cleaner', async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found." });
     }
+
+    const bookingLink = `${APP_URL}/api/bookings/${booking._id}`;
+
+    const emailBody = `
+    You Have Been Assigned an Appointment
+    Address: ${booking.address.street}, ${booking.address.city}
+    Date: ${booking.appointmentDate}
+    Time: ${booking.appointmentTime}
+    <a href="${bookingLink}" target="_blank">View Booking Details</a>
+    `;
+
+    await sendEmail(assignedCleanerEmail,"New Booking Assigned", emailBody);
 
     res.status(200).json({ message: "Cleaner assigned successfully.", cleaner: {name: assignedCleaner, phone: assignedCleanerNumber}});
   } catch (error) {
@@ -269,11 +291,16 @@ app.delete("/api/admin/bookings/:id", async (req, res) => {
 // Cleaners
 const cleanerSchema = new mongoose.Schema({
   name: String,
+  nationalId: String,
+  address: String,
   contactInfo: {
     phone: String,
     email: String,
   },
-  availability: String,
+  availability: [{
+    type: String,
+    enum: ["Full Time", "Morning", "Afternoon", "Evening"],  // Limit to these options
+  }],
   currentBookings: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Booking', 
@@ -294,6 +321,15 @@ app.get("/api/cleaners", async (req, res) => {
 app.post("/api/cleaners", async (req, res) => {
   try {
     const newCleaner = new Cleaner(req.body);
+
+    let emailBody = `
+      Hi ${newCleaner.name}, 
+      Welcome to the Team!
+    `;
+
+    sendEmail(newCleaner.contactInfo.email,"Welcome To The Team", emailBody,[]);
+
+    // Send Welcome Email for Cleaner 
     const savedCleaner = await newCleaner.save();
     res.status(201).json(savedCleaner);
   } catch (err) {
