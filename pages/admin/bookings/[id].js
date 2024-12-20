@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styles from "../../../styles/bookingdetails.module.css";
-import styles from "../../../styles/bookingdetails.module.css";
+
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL;
 const BookingDetails = ({ booking, error }) => {
@@ -12,6 +14,7 @@ const BookingDetails = ({ booking, error }) => {
   const [adminCode, setAdminCode] = useState(""); 
   const [assigning, setAssigning] = useState(false); 
   const [message, setMessage] = useState(""); 
+  const bookingRef = useRef(null);
 
   const handleAssignCleaner = async () => {
     if (!cleanerName) {
@@ -60,8 +63,56 @@ const BookingDetails = ({ booking, error }) => {
     return <div>Error: {error}</div>;
   }
 
+  const handleDownloadPDF = async () => {
+    if (bookingRef.current) {
+      const buttonsContainer = document.querySelector("#buttonsContainer");
+
+      // Temporarily hide the buttonsContainer
+      if (buttonsContainer) {
+        buttonsContainer.style.display = "none";
+      }
+
+      const element = bookingRef.current;
+
+      // Convert HTML to a canvas
+      const canvas = await html2canvas(element, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4"); // Portrait orientation, mm units, A4 size
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const imgHeight = (canvasHeight * pdfWidth) / canvasWidth;
+
+      let heightLeft = imgHeight; // Track remaining height to render
+      let position = 0; // Start position for the first page
+
+      // Add pages if content overflows
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+
+        if (heightLeft > 0) {
+          position -= pdfHeight; // Move to the next page
+          pdf.addPage();
+        }
+      }
+
+      if (buttonsContainer) {
+        buttonsContainer.style.display = "block";
+      }
+
+      // Save the generated PDF
+      pdf.save(`Booking_${booking._id}.pdf`);
+    } else {
+      console.error("Reference to bookingRef is not set.");
+    }
+  };
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={bookingRef}>
       <h1 className={styles.h1}>Booking Details</h1>
 
       <h2 className={styles.sectionTitle}>General Information</h2>
@@ -169,11 +220,13 @@ const BookingDetails = ({ booking, error }) => {
         </div>
       )}
 
-      {/* <a href={`http://localhost:3000/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a> */}
-      <a href={`${WEB_URL}/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a>
-      {/* <a href={`http://localhost:3000/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a> */}
-      <a href={`${WEB_URL}/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a>
-      <a href="/" className={styles.btn}>Back to Home</a>
+      <div id="buttonsContainer">
+        <a href={`${WEB_URL}/admin/bookings/edit/${booking._id}`} className={styles.btn}>Edit Booking</a>
+        <button onClick={handleDownloadPDF} className={styles.fullbtn}>
+          Download Booking Details
+        </button>
+        <a href="/admin/dashboard" className={styles.btn}>Back to Home</a>
+      </div>
     </div>
   );
 };
@@ -182,8 +235,6 @@ export async function getServerSideProps(context) {
   const { id } = context.params;
 
   try {
-    // const res = await fetch(`http://localhost:5000/api/bookings/${id}`); 
-    const res = await fetch(`${WEB_URL}/api/bookings/${id}`); 
     const res = await fetch(`${WEB_URL}/api/bookings/${id}`); 
     if (!res.ok) {
       throw new Error(`Failed to fetch booking: ${res.statusText}`);

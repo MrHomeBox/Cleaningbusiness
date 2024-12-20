@@ -14,8 +14,7 @@ const Dashboard = () => {
     e.preventDefault();
 
     try {
-      // const res = await fetch("http://essentialscleaner.com/api/validate-admin", {
-      const res = await fetch(`/api/validate-admin`, {
+      const res = await fetch(`${WEB_URL}/api/validate-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,6 +123,7 @@ const Dashboard = () => {
               <th>Customer Phone</th>
               <th>Address</th>
               <th>Cleaner Assigned</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -135,6 +135,7 @@ const Dashboard = () => {
                 <td>{booking.contactInfo.phone ?? ""}</td>
                 <td>{booking.address.street ?? ""}</td>
                 <td>{booking.assignedCleaner ?? ""}</td>
+                <td>{booking.bookingStatus ?? ""}</td>
                 <td className={styles.actions}>
                   <Link href={`${WEB_URL}/admin/bookings/${booking._id}`} className={styles.viewBtn}>
                     View

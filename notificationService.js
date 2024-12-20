@@ -4,7 +4,7 @@ import twilio from "twilio";
 
 dotenv.config();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY, { debug: true });
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -14,6 +14,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ADMIN_PHONE = process.env.ADMIN_PHONE;
 
 const sendEmail = async (to, subject, html, bcc = []) => {
+
   if (ADMIN_EMAIL) {
     const userMsg = {
       to,
@@ -22,7 +23,7 @@ const sendEmail = async (to, subject, html, bcc = []) => {
       html,
       bcc,
     };
-  
+    
     try {
       await sgMail.send(userMsg);
       console.log(`Email sent to ${to}`);
