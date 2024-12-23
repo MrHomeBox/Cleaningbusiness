@@ -331,7 +331,6 @@
                   <div class="progress-step" id="step-3">3</div>
                 </div>
             
-                  <!-- <form id="booking-form" action="https://essentialscleaner.vercel.app/api/booking" method="POST" novalidate> -->
                   <form id="booking-form" action="https://essentialscleaner.com/api/booking" method="POST" novalidate>
                   <!-- Step 1: Property Info -->
                   <input type="hidden" id="bookingStatus" name="bookingStatus" value="Pending">
@@ -1045,7 +1044,7 @@
     
     const BASE_URL = window.location.hostname === "localhost"
         ? "http://localhost:3000" // Local server
-        : "https://essentialscleaner.vercel.app"; // Deployed server
+        : "https://essentialscleaner.com"; // Deployed server
 
  console.log("API Base URL:", BASE_URL);
     console.log("Full API URL:", `${BASE_URL}/api/bookings`);
