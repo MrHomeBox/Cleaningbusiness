@@ -29,7 +29,6 @@ const sendEmail = async (to, subject, html, bcc = []) => {
       console.log(`Email sent to ${to}`);
     } catch (error) {
       console.error("Error sending email:", error);
-      throw error;
     }
   }
 };
@@ -45,7 +44,6 @@ const sendSMS = async (to, body) => {
       console.log(`SMS sent to ${to}, SID: ${message.sid}`);
     } catch (error) {
       console.error("Error sending SMS:", error);
-      throw error;
     }
   }
 };
