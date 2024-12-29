@@ -164,6 +164,20 @@ app.put("/api/bookings/:id", async (req, res) => {
       <p>Thank you for using Essentials Cleaners!</p>
     `;
 
+    var smsContent = `
+    Hi ${phone},
+
+    Your booking has been updated! 
+
+    Date: ${appointmentDate}
+    Time: ${appointmentTime}
+    Address: ${address.street}, ${address.city}, ${address.state}
+
+    View details: ${bookingLink}
+
+    Thank you for choosing Essentials Cleaners!
+    `;
+
     if (oldBooking.bookingStatus != updatedBooking.bookingStatus) {
       switch (updatedBooking.bookingStatus) {
         case 'Confirmed':
@@ -181,11 +195,28 @@ app.put("/api/bookings/:id", async (req, res) => {
           <p><a href="${bookingLink}" target="_blank">View Booking Details</a></p>
           <p>Thank you for using Essentials Cleaners! We look forward to serving you again.</p>
           `;
+
+          smsContent = `
+          Hi ${email},
+
+          Your booking is confirmed! 
+
+          Date: ${appointmentDate}
+          Time: ${appointmentTime}
+          Address: ${address.street}, ${address.city}, ${address.state}
+          Cleaner Assigned: ${updatedBooking.assignedCleaner}
+
+          View details: ${bookingLink}
+
+          Thank you for choosing Essentials Cleaners!
+          `;
+
           break;
         case 'Cancelled':
             
           console.log(updatedBooking.bookingStatus);
           subject = "Job Cancellation Notice";
+
           emailContent = `
           <h1>Your Booking is Cancelled</h1>
           <p>Hi ${email},</p>
@@ -197,6 +228,22 @@ app.put("/api/bookings/:id", async (req, res) => {
           <p>Thank You,</p>
           <p>Essentials Cleaners</p>
           `;
+
+          smsContent = `
+          Hi ${email},
+
+          We regret to inform you that your job has been canceled. 
+
+          Date: ${appointmentDate}
+          Time: ${appointmentTime}
+          Address: ${address.street}, ${address.city}, ${address.state}
+
+          For questions, contact us at essentialsgroupzw@gmail.com or +1 (469) 953-7291.
+
+          Thank you, 
+          Essentials Cleaners
+          `;
+
           
             break;
           case 'Completed':
@@ -218,17 +265,9 @@ app.put("/api/bookings/:id", async (req, res) => {
       }
     }
 
-    const smsMessageBody = `
-      Hi ${phone}, 
-      Your booking has been updated!
-      Date: ${appointmentDate}
-      Time: ${appointmentTime}
-      Address: ${address.street}, ${address.city}, ${address.state}
-    `;
-
     // Send notifications
-    await sendEmail(email, subject, emailContent, ["tmsibanda@africau.edu"]);
-    await sendSMS(phone, smsMessageBody);
+    await sendEmail(email, subject, emailContent);
+    await sendSMS(phone, smsContent);
 
     res.status(200).json({ message: "Booking updated and notifications sent!", booking: updatedBooking });
   } catch (err) {
@@ -277,7 +316,7 @@ app.post('/api/bookings/:id/assign-cleaner', async (req, res) => {
   try {
     const booking = await Booking.findByIdAndUpdate(
       id,
-      { cleaner:cleanerId, assignedCleaner: assignedCleaner , assignedCleanerNumber: assignedCleanerNumber },
+      { bookingStatus: "Confirmed",cleaner:cleanerId, assignedCleaner: assignedCleaner , assignedCleanerNumber: assignedCleanerNumber },
       { new: true }
     );
 
@@ -312,8 +351,25 @@ app.post('/api/bookings/:id/assign-cleaner', async (req, res) => {
     <p>Thank you for choosing Essentials Cleaners! We look forward to serving you.</p>
     `;
 
+    const smsContent = `
+    Hi ${booking.contactInfo.email},
+
+    Your booking is confirmed! 
+
+    Date: ${booking.appointmentDate}
+    Time: ${booking.appointmentTime}
+    Address: ${booking.address.street}, ${booking.address.city}
+    Cleaner Assigned: ${assignedCleaner}
+
+    View details: ${bookingLink}
+
+    Thank you for choosing Essentials Cleaners!
+    `;
+
+
     await sendEmail(assignedCleanerEmail,"New Booking Assigned", cleanerEmailBody);
-    await sendEmail(booking.contactInfo.email,"New Booking Assigned", customerEmailBody);
+    await sendEmail(booking.contactInfo.email,"Booking Confirmed", customerEmailBody);
+    await sendSMS(booking.contactInfo.phone,smsContent);
 
     res.status(200).json({ message: "Cleaner assigned successfully.", cleaner: {name: assignedCleaner, phone: assignedCleanerNumber}});
   } catch (error) {
@@ -404,11 +460,17 @@ app.post("/api/cleaners", async (req, res) => {
       Hi ${newCleaner.name}, 
       Welcome to the Team!
     `;
-
-    sendEmail(newCleaner.contactInfo.email,"Welcome To The Team", emailBody,[]);
-
+    let smsContent = `
+      Hi ${newCleaner.name}, 
+      Welcome to the Essentials Cleaner Team!
+    `;
+    
     // Send Welcome Email for Cleaner 
     const savedCleaner = await newCleaner.save();
+
+    
+    await sendEmail(newCleaner.contactInfo.email,"Welcome To The Team", emailBody,[]);
+    await sendSMS(newCleaner.contactInfo.phone, smsContent);
     res.status(201).json(savedCleaner);
   } catch (err) {
     res.status(500).json({ message: "Failed to add cleaner", error: err.message });
