@@ -76,8 +76,8 @@ app.post("/api/bookings", async (req, res) => {
     console.log(req.body.bookingStatus);
 
     const bookingLink = `${APP_URL}/api/bookings/${savedBooking._id}`;
-    const adminBookingLink = `${APP_URL}/api/admin/bookings/${savedBooking._id}`;
-    const adminDashboard = `${APP_URL}/api/admin/dashboard`;
+    const adminBookingLink = `${APP_URL}/admin/bookings/${savedBooking._id}`;
+    const adminDashboard = `${APP_URL}/admin/dashboard`;
     
     const emailContent = `
       <h1>Booking Scheduled</h1>
@@ -105,7 +105,7 @@ app.post("/api/bookings", async (req, res) => {
 
     const smsMessageBody = `
       Hi ${phone}, 
-      Your booking is confirmed!
+      Your booking has been Scheduled!
       Date: ${appointmentDate}
       Time: ${appointmentTime}
       Address: ${address.street}, ${address.city}, ${address.state}
@@ -316,7 +316,7 @@ app.post('/api/bookings/:id/assign-cleaner', async (req, res) => {
   try {
     const booking = await Booking.findByIdAndUpdate(
       id,
-      { bookingStatus: "Confirmed",cleaner:cleanerId, assignedCleaner: assignedCleaner , assignedCleanerNumber: assignedCleanerNumber },
+      { bookingStatus: "Confirmed" ,cleaner:cleanerId, assignedCleaner: assignedCleaner , assignedCleanerNumber: assignedCleanerNumber },
       { new: true }
     );
 
