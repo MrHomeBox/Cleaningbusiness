@@ -597,19 +597,8 @@
                         <option value="Pay Later">Pay Later</option>
                       </select>
                     </div>
-                    <!-- Card details (shown when "Pay Now" is selected) -->
-                    <div class="form-group card-details" style="display: none;">
-                      <label for="card-number">Card Number</label>
-                      <input type="text" name="card-number" id="card-number" pattern="\d{16}" placeholder="1234 5678 9101 1121" />
-                    </div>
-                    <div class="form-group card-details" style="display: none;">
-                      <label for="expiry-date">Expiration Date</label>
-                      <input type="text" name="expiry-date" id="expiry-date" placeholder="MM/YY" pattern="\d{2}/\d{2}" />
-                    </div>
-                    <div class="form-group card-details" style="display: none;">
-                      <label for="cvv">CVV</label>
-                      <input type="text" name="cvv" id="cvv" pattern="\d{3}" placeholder="123" />
-                    </div>
+                    <!-- Card details (Deleted) -->
+                    
                     <div class="form-group">
                         <label for="hear-about-us">How did you hear about us?</label>
                         <select name="hear-about-us" id="hear-about-us" required>
@@ -1047,6 +1036,9 @@
         ? "http://localhost:3000" // Local server
         : "https://essentialscleaner.vercel.app"; // Deployed server
 
+        const STRIPE_PAYMENT_LINK = "https://your-stripe-payment-link.com"; // Load from .env in backend
+
+
  console.log("API Base URL:", BASE_URL);
     console.log("Full API URL:", `${BASE_URL}/api/bookings`);
 
@@ -1079,9 +1071,16 @@
     };
 
     try {
-        const response = await axios.post(`${BASE_URL}/api/bookings`, bookingData); // Use dynamic BASE_URL
+        const response = await axios.post(`${BASE_URL}/api/bookings`, bookingData); // Save booking
+
         alert("Booking saved successfully!"); // Notify user
-        console.log("Response:", response.data); // Log response for debugging
+
+        // Check if user selected "Pay Now" and redirect to Stripe Payment Link
+        if (bookingData.paymentType === "Pay Now") {
+            window.location.href = STRIPE_PAYMENT_LINK; // Redirect to Stripe payment
+        } else {
+            window.location.href = "/"; // Redirect to homepage for "Pay Later"
+        }
     } catch (error) {
         console.error("Error saving booking:", error);
         alert("Failed to save booking. Please try again.");
